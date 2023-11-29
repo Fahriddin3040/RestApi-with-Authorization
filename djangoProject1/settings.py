@@ -22,7 +22,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-&9ez5d=s#81vh=e9z1@es%s!#7z_3a$gr6=inl-wy#i2ga1o0c'
+# SECRET_KEY = 'django-insecure-&9ez5d=s#81vh=e9z1@es%s!#7z_3a$gr6=inl-wy#i2ga1o0c'
+
+SECRET_KEY = 'FIRUZ01'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -42,7 +44,9 @@ INSTALLED_APPS = [
     'bc.apps.BcConfig',
     'rest_framework',
     'drf_spectacular',
-    'rest_framework.authtoken'
+    'rest_framework.authtoken',
+    'django_filters',
+    'rest_framework_simplejwt.token_blacklist',
 ]
 
 AUTH_USER_MODEL = 'bc.User'
@@ -77,6 +81,12 @@ TEMPLATES = [
 
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    )
+
 }
 
 WSGI_APPLICATION = 'djangoProject1.wsgi.application'
@@ -109,6 +119,19 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Your Project API',
+    'DESCRIPTION': 'Your project description',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'SECURITY': [ ]
+    # OTHER SETTINGS
+}
+
+SIMPLE_JWT = {
+  "TOKEN_OBTAIN_SERIALIZER": "bc.serializers.TokenObtainSerializer",
+}
 
 
 # Internationalization
