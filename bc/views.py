@@ -1,12 +1,12 @@
 import rest_framework.exceptions
+from django.contrib.auth.hashers import make_password
 from django.http import HttpResponseRedirect
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema_view, extend_schema
-from rest_framework.filters import SearchFilter
 from rest_framework.response import Response
 from .serializers import OperationSerializer, UserSerializer, CategorySerializer
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import SessionAuthentication
 from rest_framework import viewsets, status
@@ -82,11 +82,17 @@ class UserAPIView(viewsets.ModelViewSet):
     serializer_class = UserSerializer
 
     def create(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
-
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = serializer.save()
-        return Response(user, status=status.HTTP_201_CREATED)
+
+        user_instance = User.objects.create_user(
+            username=serializer.validated_data['username'],
+            email=serializer.validated_data['email'],
+            password=serializer.validated_data['password']
+        )
+
+        user_serializer = UserSerializer(user_instance)
+        return Response(user_serializer.data, status=status.HTTP_201_CREATED)
 
     def retrieve(self, request, *args):
         user = request.user

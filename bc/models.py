@@ -1,44 +1,11 @@
+from typing import Union
 from django.db import models
-from django.contrib.auth.models import AbstractUser, UserManager
-from django.db.models.signals import post_save
-from django.dispatch import receiver
+from django.contrib.auth.models import AbstractUser
 from rest_framework.authtoken.models import Token
-from django.contrib.auth.hashers import make_password
 
 
-class User(AbstractUser, UserManager):
-
-    def save(self, *args, **kwargs):
-        self.password = make_password(self.password)
-
-        super().save(*args, **kwargs)
-
-
-    def _create_user(self, username, email, password, **extra_fields):
-        username = self.username
-        email = self.email
-        password = self.password
-
-        super()._create_user(username, email, password, **extra_fields)
-
-    def calculated_balance(self) -> float:
-        result = 0
-
-        notes = Operations.objects.filter(user=self)
-
-        for note in notes:
-            if note.typ == 1:
-                result -= note.amount
-            elif note.typ == 2:
-                result += note.amount
-        return result
-
-
-
-@receiver(post_save, sender=User)
-def create_auth_token(sender, instance=None, created=False, **kwargs):
-    if created:
-        Token.objects.create(user=instance)
+class User(AbstractUser):
+    pass
 
 
 class Operations(models.Model):
@@ -65,4 +32,8 @@ class Category(models.Model):
 
     def __str__(self):
         return self.title
+
+
+
+
 

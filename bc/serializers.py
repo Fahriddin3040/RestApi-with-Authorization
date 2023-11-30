@@ -14,7 +14,16 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('id', 'first_name', 'last_name', 'password', 'username', 'email', 'balance')
 
     def get_balance(self, obj) -> Union[float, int]:
-        return obj.calculated_balance()
+        result = 0
+
+        notes = Operations.objects.filter(user=obj)
+
+        for note in notes:
+            if note.typ == 1:
+                result -= note.amount
+            elif note.typ == 2:
+                result += note.amount
+        return result
 
 
 class OperationSerializer(serializers.ModelSerializer):
